@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { ChangeEvent, FormEvent } from 'react';
@@ -10,9 +11,9 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Search, MapPin, DollarSign, Users, CalendarDays, Laptop, PersonStanding, FilterX } from 'lucide-react';
-import type { Filters } from '@/types';
-import { sportsList, citiesList, priceRanges, modalities as modalityOptions, schedules as scheduleOptions, demographics as demographicOptions } from '@/lib/mock-data';
+import { Search, MapPin, DollarSign, Users, CalendarDays, Laptop, PersonStanding, FilterX, ListFilter } from 'lucide-react';
+import type { Filters, SortOption } from '@/types';
+import { sportsList, citiesList, priceRanges, modalities as modalityOptions, schedules as scheduleOptions, demographics as demographicOptions, sortOptionsList } from '@/lib/mock-data';
 
 interface SearchControlsProps {
   onSearch: (filters: Filters) => void;
@@ -29,7 +30,7 @@ export function SearchControls({ onSearch, initialFilters }: SearchControlsProps
   };
 
   const handleSelectChange = (name: keyof Filters) => (value: string) => {
-    setFilters(prev => ({ ...prev, [name]: value }));
+    setFilters(prev => ({ ...prev, [name]: value as any })); // Use 'as any' for SortOption or other specific types
   };
 
   const handleDemographicChange = (demographicId: string) => {
@@ -65,7 +66,7 @@ export function SearchControls({ onSearch, initialFilters }: SearchControlsProps
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-end">
             <div className="space-y-2">
               <Label htmlFor="sport" className="font-semibold flex items-center gap-1"><Search className="w-4 h-4" />Deporte</Label>
               <Select name="sport" value={filters.sport} onValueChange={handleSelectChange('sport')}>
@@ -99,6 +100,23 @@ export function SearchControls({ onSearch, initialFilters }: SearchControlsProps
               />
             </div>
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+             <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="sortBy" className="font-semibold flex items-center gap-1"><ListFilter className="w-4 h-4" />Ordenar por</Label>
+              <Select name="sortBy" value={filters.sortBy} onValueChange={handleSelectChange('sortBy')}>
+                <SelectTrigger id="sortBy">
+                  <SelectValue placeholder="Ordenar por..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {sortOptionsList.map(option => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+             <div> {/* Empty div for spacing, or add another filter here */}
+            </div>
+          </div>
+
 
           {showMoreFilters && (
             <div className="space-y-6 pt-4 border-t">

@@ -1,11 +1,12 @@
+
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AppHeader } from '@/components/header';
 import { SearchControls } from '@/components/search-controls';
 import { SchoolList } from '@/components/school-list';
 import { MapPlaceholder } from '@/components/map-placeholder';
-import type { School, Filters } from '@/types';
+import type { School, Filters, SortOption } from '@/types';
 import { mockSchools } from '@/lib/mock-data';
 import { Loader2 } from 'lucide-react';
 
@@ -17,7 +18,8 @@ const initialFiltersState: Filters = {
   modality: 'Cualquiera',
   schedule: 'Cualquiera',
   demographic: [],
-  radius: 10, // Default 10km radius
+  radius: 10,
+  sortBy: 'relevance',
 };
 
 export default function HomePage() {
@@ -30,44 +32,70 @@ export default function HomePage() {
     // Simulate API call
     setTimeout(() => {
       setSchools(mockSchools);
-      setFilteredSchools(mockSchools);
+      // Apply initial filters (which includes default sort)
+      applyFiltersAndSort(mockSchools, initialFiltersState);
       setIsLoading(false);
     }, 500);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSearch = (newFilters: Filters) => {
+  const applyFiltersAndSort = useCallback((schoolsToFilter: School[], filters: Filters) => {
+    let result = [...schoolsToFilter]; // Create a copy to sort
+
+    if (filters.sport !== 'Todos') {
+      result = result.filter(school => school.sport === filters.sport);
+    }
+    if (filters.city !== 'Todas') {
+      result = result.filter(school => school.location.city === filters.city);
+    }
+    if (filters.neighborhood) {
+      result = result.filter(school => 
+        school.location.neighborhood?.toLowerCase().includes(filters.neighborhood.toLowerCase())
+      );
+    }
+    if (filters.modality !== 'Cualquiera') {
+      result = result.filter(school => school.modality === filters.modality);
+    }
+    if (filters.demographic.length > 0) {
+      result = result.filter(school => 
+        filters.demographic.some(demo => school.ages.toLowerCase().includes(demo.replace(/s$/, '')))
+      );
+    }
+    // Price, schedule, radius filters would require more complex logic / geo-location.
+
+    // Sorting
+    switch (filters.sortBy) {
+      case 'name_asc':
+        result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'name_desc':
+        result.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case 'rating_asc':
+        result.sort((a, b) => (a.rating ?? 0) - (b.rating ?? 0));
+        break;
+      case 'rating_desc':
+        result.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+        break;
+      case 'relevance':
+      default:
+        // Default sort or relevance (currently no specific relevance logic, uses original order)
+        break;
+    }
+    
+    setFilteredSchools(result);
+  }, []);
+
+
+  const handleSearch = useCallback((newFilters: Filters) => {
     setIsLoading(true);
     setCurrentFilters(newFilters);
     // Simulate filtering delay
     setTimeout(() => {
-      let result = schools;
-
-      if (newFilters.sport !== 'Todos') {
-        result = result.filter(school => school.sport === newFilters.sport);
-      }
-      if (newFilters.city !== 'Todas') {
-        result = result.filter(school => school.location.city === newFilters.city);
-      }
-      if (newFilters.neighborhood) {
-        result = result.filter(school => 
-          school.location.neighborhood?.toLowerCase().includes(newFilters.neighborhood.toLowerCase())
-        );
-      }
-      if (newFilters.modality !== 'Cualquiera') {
-        result = result.filter(school => school.modality === newFilters.modality);
-      }
-      if (newFilters.demographic.length > 0) {
-        result = result.filter(school => 
-          newFilters.demographic.some(demo => school.ages.toLowerCase().includes(demo.replace(/s$/, ''))) // Basic check, matches 'Niño' in 'Niños (6-12 años)'
-        );
-      }
-      // Price and schedule filters would require more complex logic based on how price strings are structured / schedule options are defined.
-      // Radius filter would require geo-location calculations, deferred for this UI-focused step.
-      
-      setFilteredSchools(result);
+      applyFiltersAndSort(schools, newFilters);
       setIsLoading(false);
     }, 300);
-  };
+  }, [schools, applyFiltersAndSort]);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -77,7 +105,9 @@ export default function HomePage() {
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
           <div className="lg:col-span-2">
-            <h2 className="text-2xl font-headline font-semibold mb-6 text-primary">Escuelas Encontradas</h2>
+            <h2 className="text-2xl font-headline font-semibold mb-6 text-primary">
+              {filteredSchools.length > 0 ? `${filteredSchools.length} Escuela(s) Encontrada(s)` : 'Escuelas Encontradas'}
+            </h2>
             {isLoading ? (
               <div className="flex justify-center items-center h-64">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -88,7 +118,7 @@ export default function HomePage() {
             )}
           </div>
           <div className="lg:col-span-1">
-             <div className="sticky top-8"> {/* Make map placeholder sticky */}
+             <div className="sticky top-8">
               <MapPlaceholder />
             </div>
           </div>

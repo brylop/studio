@@ -1,3 +1,18 @@
+
+export interface SchoolContact {
+  whatsapp?: string;
+  email?: string;
+  phone?: string;
+  website?: string; // Nuevo campo para enlace de inscripción/web de la escuela
+}
+
+export interface SchoolLocation {
+  address: string;
+  neighborhood?: string;
+  city: string;
+  coordinates?: { lat: number; lng: number };
+}
+
 export interface School {
   id: string;
   name: string;
@@ -6,21 +21,17 @@ export interface School {
   ages: string;
   schedule: string[];
   modality: 'Virtual' | 'Presencial' | 'Híbrido';
-  contact: {
-    whatsapp?: string;
-    email?: string;
-    phone?: string;
-  };
-  location: {
-    address: string;
-    neighborhood?: string;
-    city: string;
-    coordinates?: { lat: number; lng: number };
-  };
-  image: string; // URL for a single representative image
-  rating?: number; // Optional: 1-5
+  contact: SchoolContact;
+  location: SchoolLocation;
+  image: string;
+  rating?: number;
   description?: string;
+  images?: string[]; // Para galería en página de detalle
+  longDescription?: string; // Descripción más detallada
+  inscriptionInfo?: string; // Información específica de inscripción que ya está en description
 }
+
+export type SortOption = 'relevance' | 'name_asc' | 'name_desc' | 'rating_asc' | 'rating_desc';
 
 export interface Filters {
   sport: string;
@@ -31,4 +42,5 @@ export interface Filters {
   schedule: string;
   demographic: string[];
   radius: number;
+  sortBy: SortOption; // Nueva opción para ordenar
 }
