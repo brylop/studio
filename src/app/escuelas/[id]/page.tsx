@@ -3,17 +3,25 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { AppHeader } from '@/components/header';
 import { SchoolDetailClient } from '@/components/school-detail-client';
-import { mockSchools } from '@/lib/mock-data';
+// mockSchools is no longer directly imported here
 import type { School } from '@/types';
 
 interface SchoolDetailPageProps {
   params: { id: string };
 }
 
-// Function to fetch school data (simulated)
+// Function to fetch school data from API
 async function getSchoolById(id: string): Promise<School | undefined> {
-  // In a real app, this would be an API call
-  return mockSchools.find(school => school.id === id);
+  const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002'}/api/schools/${id}`, { cache: 'no-store' }); // Use cache: 'no-store' for development to see changes, or revalidatePath/Tag for production
+  if (!response.ok) {
+    if (response.status === 404) {
+      return undefined;
+    }
+    // Handle other errors as needed
+    console.error('Failed to fetch school:', response.statusText);
+    throw new Error('Failed to fetch school data');
+  }
+  return response.json();
 }
 
 export async function generateMetadata({ params }: SchoolDetailPageProps): Promise<Metadata> {
@@ -51,9 +59,13 @@ export default async function SchoolDetailPage({ params }: SchoolDetailPageProps
   );
 }
 
-// Optional: For static site generation, pre-render paths
+// Optional: For static site generation, if you want to pre-render paths
+// You would need to fetch all school IDs first
 // export async function generateStaticParams() {
-//   return mockSchools.map(school => ({
+//   const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002'}/api/schools`);
+//   const schools: School[] = await res.json();
+//   return schools.map(school => ({
 //     id: school.id,
 //   }));
 // }
+
