@@ -1,3 +1,4 @@
+
 import type { School } from '@/types';
 
 export const mockSchools: School[] = [
@@ -96,7 +97,7 @@ export const mockSchools: School[] = [
     price: '$150.000/mes (clases personalizadas)',
     ages: 'Adultos',
     schedule: ['Horarios flexibles a convenir'],
-    modality: 'Híbrido', // Presencial y virtual
+    modality: 'Híbrido', 
     contact: {
       whatsapp: '3201122334',
       email: 'natacionpro@example.com'
@@ -194,17 +195,220 @@ export const mockSchools: School[] = [
     image: 'https://placehold.co/600x400.png',
     rating: 4.1,
     description: 'Formación integral en Taekwondo con énfasis en valores.'
+  },
+  // Nuevas escuelas de la tabla
+  {
+    id: '10',
+    name: 'IDRD Menores',
+    sport: 'Atletismo', // Tomando el primer deporte listado
+    price: '$50.000/mes (estimado)', // Estimado, IDRD suele ser de bajo costo o gratuito
+    ages: '6–17 años',
+    schedule: ['Consultar horarios en portal', 'Varían según deporte'],
+    modality: 'Presencial',
+    contact: {
+      email: 'atencionciudadano@idrd.gov.co', // Genérico de IDRD
+      phone: '(601) 6605400' // Genérico de IDRD
+    },
+    location: {
+      address: 'Varios parques y escenarios IDRD',
+      city: 'Bogotá',
+    },
+    image: 'https://placehold.co/600x400.png',
+    rating: 4.6,
+    description: 'Ofrece: Atletismo, fútbol, patinaje, etc. Inscripción online vía Portal Ciudadano IDRD.'
+  },
+  {
+    id: '11',
+    name: 'IDRD Adultos',
+    sport: 'Boxeo', // Tomando el primer deporte listado
+    price: '$60.000/mes (estimado)',
+    ages: '18+ años',
+    schedule: ['Consultar horarios en portal', 'Varían según disciplina'],
+    modality: 'Presencial',
+    contact: {
+      email: 'atencionciudadano@idrd.gov.co',
+      phone: '(601) 6605400'
+    },
+    location: {
+      address: 'Varios centros deportivos IDRD',
+      city: 'Bogotá',
+    },
+    image: 'https://placehold.co/600x400.png',
+    rating: 4.4,
+    description: 'Ofrece: Boxeo, taekwondo, natación. Inscripción online vía Portal Ciudadano IDRD.'
+  },
+  {
+    id: '12',
+    name: 'Colsubsidio',
+    sport: 'Natación', // Tomando el primer deporte listado
+    price: '$100.000/mes (estimado)',
+    ages: 'Todas edades',
+    schedule: ['Amplia oferta horaria', 'Consultar en Tienda de Diversión'],
+    modality: 'Presencial',
+    contact: {
+      phone: '(601) 7457900' // Genérico Colsubsidio
+    },
+    location: {
+      address: 'Múltiples sedes Colsubsidio',
+      city: 'Bogotá',
+    },
+    image: 'https://placehold.co/600x400.png',
+    rating: 4.7,
+    description: 'Ofrece: Natación, artes marciales, bolos, etc. Inscripción online: Tienda de Diversión Colsubsidio.'
+  },
+  {
+    id: '13',
+    name: 'Cafam',
+    sport: 'Karate', // Tomando el primer deporte listado
+    price: '$90.000/mes (estimado)',
+    ages: 'Todas edades',
+    schedule: ['Variedad de cursos y horarios', 'Consultar en sitio web'],
+    modality: 'Presencial',
+    contact: {
+      phone: '(601) 3077011' // Genérico Cafam
+    },
+    location: {
+      address: 'Club Campestre Cafam y otras sedes',
+      city: 'Bogotá',
+    },
+    image: 'https://placehold.co/600x400.png',
+    rating: 4.5,
+    description: 'Ofrece: Karate, tenis, gimnasia, bolos, etc. Inscripción online: Sitio de Cafam Deportes.'
+  },
+  {
+    id: '14',
+    name: 'Inder/Ligas Medellín',
+    sport: 'Fútbol', // Tomando el primer deporte listado
+    price: 'Varía (algunos gratuitos)',
+    ages: 'Todas edades',
+    schedule: ['Consultar directamente con Inder o ligas específicas'],
+    modality: 'Presencial',
+    contact: {
+      email: 'info@inder.gov.co', // Ejemplo
+      phone: '(604) 3699000' // Genérico Inder Medellín
+    },
+    location: {
+      address: 'Escenarios deportivos de Medellín',
+      city: 'Medellín',
+    },
+    image: 'https://placehold.co/600x400.png',
+    rating: 4.6,
+    description: 'Ofrece: Fútbol, basket, ciclismo, natación. Inscripción online: Web/portales institucionales.'
+  },
+  {
+    id: '15',
+    name: 'Comfama Medellín',
+    sport: 'Natación', // Tomando el primer deporte listado
+    price: '$110.000/mes (estimado)',
+    ages: 'Todas edades',
+    schedule: ['Diversos horarios y sedes', 'Consultar en portal Comfama'],
+    modality: 'Presencial',
+    contact: {
+      phone: '(604) 3607080' // Genérico Comfama
+    },
+    location: {
+      address: 'Parques Comfama y sedes',
+      city: 'Medellín',
+    },
+    image: 'https://placehold.co/600x400.png',
+    rating: 4.7,
+    description: 'Ofrece: Natación, fútbol, baloncesto. Inscripción online: Portal Comfama.'
+  },
+  {
+    id: '16',
+    name: 'Secretaría Deporte Cali',
+    sport: 'Varios Deportes', // "Talleres y cursos deportivos" es genérico
+    price: 'Mayoría gratuitos',
+    ages: 'Todas edades',
+    schedule: ['Consultar programación en la web de la Secretaría'],
+    modality: 'Presencial',
+    contact: {
+      email: 'contactenos@cali.gov.co', // Ejemplo
+      phone: '(602) 8879020' // Genérico Alcaldía Cali
+    },
+    location: {
+      address: 'Centros deportivos y comunitarios de Cali',
+      city: 'Cali',
+    },
+    image: 'https://placehold.co/600x400.png',
+    rating: 4.3,
+    description: 'Ofrece: Talleres y cursos deportivos. Inscripción online: Web Secretaría Deporte Cali.'
+  },
+  {
+    id: '17',
+    name: 'Comfenalco Valle',
+    sport: 'Fútbol', // Tomando el primer deporte listado
+    price: '$85.000/mes (estimado)',
+    ages: '2+ años',
+    schedule: ['Consultar oferta en MiComfamiliar.com'],
+    modality: 'Presencial',
+    contact: {
+      phone: '018000938585' // Genérico Comfenalco Valle
+    },
+    location: {
+      address: 'Centros recreativos Comfenalco Valle',
+      city: 'Cali',
+    },
+    image: 'https://placehold.co/600x400.png',
+    rating: 4.5,
+    description: 'Ofrece: Fútbol, natación, artes marciales, etc. Inscripción online: MiComfamiliar.com.'
+  },
+  {
+    id: '18',
+    name: 'Comfandi',
+    sport: 'Fútbol', // Tomando el primer deporte listado
+    price: '$95.000/mes (estimado)',
+    ages: 'Todas edades',
+    schedule: ['Consultar en web o WhatsApp Comfandi'],
+    modality: 'Presencial',
+    contact: {
+      whatsapp: '3101234567', // Ejemplo
+      phone: '(602) 4859999' // Genérico Comfandi
+    },
+    location: {
+      address: 'Centros recreativos y deportivos Comfandi',
+      city: 'Cali',
+    },
+    image: 'https://placehold.co/600x400.png',
+    rating: 4.6,
+    description: 'Ofrece: Fútbol, natación, tenis, taekwondo. Inscripción online: Web/WhatsApp Comfandi.'
+  },
+  {
+    id: '19',
+    name: 'Comfenalco Valle (academias recreativas)',
+    sport: 'Fútbol', // Tomando el primer deporte listado
+    price: '$70.000/mes (estimado)',
+    ages: 'Niños y jóvenes',
+    schedule: ['Consultar en formulario web o centro recreativo'],
+    modality: 'Presencial',
+    contact: {
+      phone: '018000938585' // Genérico Comfenalco Valle
+    },
+    location: {
+      address: 'Centros recreativos específicos Comfenalco Valle',
+      city: 'Cali',
+    },
+    image: 'https://placehold.co/600x400.png',
+    rating: 4.4,
+    description: 'Ofrece: Fútbol, natación, taekwondo. Inscripción online: Formulario web / Centro recreativo.'
   }
 ];
 
-export const sportsList = ['Todos', ...new Set(mockSchools.map(school => school.sport))];
-export const citiesList = ['Todas', ...new Set(mockSchools.map(school => school.location.city))];
-// Neighborhoods can be dynamically populated based on selected city or remain a text input.
+// Regenerate lists to include new data and ensure uniqueness
+const allSports = new Set(mockSchools.map(school => school.sport));
+export const sportsList = ['Todos', ...Array.from(allSports)];
+
+const allCities = new Set(mockSchools.map(school => school.location.city));
+export const citiesList = ['Todas', ...Array.from(allCities)];
+
 export const priceRanges = ['Cualquiera', 'Gratis', 'Hasta $50.000', '$50.000 - $100.000', '$100.000 - $150.000', 'Más de $150.000'];
 export const modalities = ['Cualquiera', 'Presencial', 'Virtual', 'Híbrido'];
 export const schedules = ['Cualquiera', 'Días de semana', 'Fines de semana', 'Mañana', 'Tarde', 'Noche'];
 export const demographics = [
-  { id: 'ninos', label: 'Niños' },
+  { id: 'ninos', label: 'Niños' }, // Matches "Niño" en la lógica de filtrado
   { id: 'jovenes', label: 'Jóvenes' },
   { id: 'adultos', label: 'Adultos' },
+  { id: 'todas_edades', label: 'Todas las edades'} // Nuevo para cubrir casos como "Todas edades"
 ];
+
+    
