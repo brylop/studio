@@ -1,66 +1,111 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { mockSchools } from '@/lib/mock-data';
-import type { School, Filters } from '@/types';
+import prisma from '@/lib/prisma';
+import type { School, Filters, SortOption } from '@/types'; // Assuming your types still somewhat align
+
+// Helper function to map Prisma School to your School type
+// You might need to adjust this based on your exact Prisma schema and TS types
+function mapPrismaSchoolToType(prismaSchool: any): School {
+  return {
+    id: prismaSchool.id,
+    name: prismaSchool.name,
+    sport: prismaSchool.sport,
+    price: prismaSchool.priceDescription || 'No especificado',
+    ages: prismaSchool.agesDescription || 'No especificado',
+    modality: prismaSchool.modality as 'Presencial' | 'Virtual' | 'Híbrido', // Ensure enum mapping
+    contact: {
+      whatsapp: prismaSchool.contactWhatsapp,
+      email: prismaSchool.contactEmail,
+      phone: prismaSchool.contactPhone,
+      website: prismaSchool.contactWebsite,
+    },
+    location: {
+      address: prismaSchool.address || '',
+      neighborhood: prismaSchool.neighborhood,
+      city: prismaSchool.city,
+      // coordinates would need to be handled if stored separately or derived
+    },
+    image: prismaSchool.mainImageUrl || 'https://placehold.co/600x400.png',
+    rating: prismaSchool.rating,
+    description: prismaSchool.shortDescription,
+    longDescription: prismaSchool.longDescription,
+    images: prismaSchool.images?.map((img: { imageUrl: string }) => img.imageUrl) || [],
+    schedule: prismaSchool.schedules?.map((sch: { scheduleItem: string }) => sch.scheduleItem) || [],
+    inscriptionInfo: prismaSchool.inscriptionInfo,
+  };
+}
+
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   
-  // Extract filter parameters from query
-  const sport = searchParams.get('sport') || 'Todos';
-  const city = searchParams.get('city') || 'Todas';
-  const neighborhood = searchParams.get('neighborhood') || '';
-  const modality = searchParams.get('modality') || 'Cualquiera';
+  const sport = searchParams.get('sport') || undefined; // 'Todos' will mean no filter
+  const city = searchParams.get('city') || undefined;   // 'Todas' will mean no filter
+  const neighborhood = searchParams.get('neighborhood') || undefined;
+  const modality = searchParams.get('modality') || undefined; // 'Cualquiera'
   const demographicQuery = searchParams.get('demographic');
-  const demographic = demographicQuery ? demographicQuery.split(',') : [];
-  const sortBy = searchParams.get('sortBy') || 'relevance';
-  // Price, schedule, radius filters are not fully implemented here for simplicity with mock data.
+  // const demographic = demographicQuery ? demographicQuery.split(',') : []; // Prisma needs more specific filtering for this
+  const sortBy = searchParams.get('sortBy') as SortOption || 'relevance';
 
-  let results: School[] = [...mockSchools];
-
-  if (sport !== 'Todos') {
-    results = results.filter(school => school.sport === sport);
+  const whereClause: any = {};
+  if (sport && sport !== 'Todos') {
+    whereClause.sport = sport;
   }
-  if (city !== 'Todas') {
-    results = results.filter(school => school.location.city === city);
+  if (city && city !== 'Todas') {
+    whereClause.city = city;
   }
   if (neighborhood) {
-    results = results.filter(school => 
-      school.location.neighborhood?.toLowerCase().includes(neighborhood.toLowerCase())
-    );
+    whereClause.neighborhood = { contains: neighborhood, mode: 'insensitive' };
   }
-  if (modality !== 'Cualquiera') {
-    results = results.filter(school => school.modality === modality);
+  if (modality && modality !== 'Cualquiera') {
+    // Ensure the modality value matches one of the Prisma enum values
+    if (['Presencial', 'Virtual', 'Hibrido'].includes(modality)) {
+      whereClause.modality = modality as 'Presencial' | 'Virtual' | 'Hibrido';
+    }
   }
-  if (demographic.length > 0) {
-    results = results.filter(school => 
-      demographic.some(demo => school.ages.toLowerCase().includes(demo.replace(/s$/, '')))
-    );
-  }
+  // Filtering by demographic, price, schedule, radius would require more complex Prisma queries
+  // or adjustments to how data is stored/queried. For now, these are simplified.
 
-  // Sorting
+  const orderByClause: any = {};
   switch (sortBy) {
     case 'name_asc':
-      results.sort((a, b) => a.name.localeCompare(b.name));
+      orderByClause.name = 'asc';
       break;
     case 'name_desc':
-      results.sort((a, b) => b.name.localeCompare(a.name));
+      orderByClause.name = 'desc';
       break;
     case 'rating_asc':
-      results.sort((a, b) => (a.rating ?? 0) - (b.rating ?? 0));
+      orderByClause.rating = 'asc'; // Prisma handles nulls by putting them first in asc
       break;
     case 'rating_desc':
-      results.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+      orderByClause.rating = 'desc'; // Prisma handles nulls by putting them last in desc
       break;
     case 'relevance':
     default:
-      // Default sort or relevance (currently no specific relevance logic, uses original order)
+      // No specific order, or you could add a default like createdAt
+      orderByClause.createdAt = 'desc'; 
       break;
   }
 
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 300));
+  try {
+    const schoolsFromDb = await prisma.school.findMany({
+      where: whereClause,
+      orderBy: orderByClause,
+      include: {
+        schedules: true, // Include related schedules
+        images: { take: 1, orderBy: { id: 'asc'} } // Include one image for the card, e.g., the first one
+      },
+    });
+    
+    // Map Prisma objects to your existing School type if they differ significantly
+    // For now, let's assume direct usage or a simple map if needed.
+    const results: School[] = schoolsFromDb.map(mapPrismaSchoolToType);
 
-  return NextResponse.json(results);
+    return NextResponse.json(results);
+  } catch (error)
+ {
+    console.error("Failed to fetch schools from DB:", error);
+    return NextResponse.json({ message: 'Error fetching schools' }, { status: 500 });
+  }
 }

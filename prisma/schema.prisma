@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model School {
+  id                String            @id @default(uuid())
+  name              String
+  sport             String
+  priceDescription  String?           @map("price_description")
+  agesDescription   String?           @map("ages_description")
+  modality          Modality
+  address           String?
+  neighborhood      String?
+  city              String
+  latitude          Float?
+  longitude         Float?
+  mainImageUrl      String?           @map("main_image_url") // Corresponds to 'image' in your TS type
+  rating            Float?
+  shortDescription  String?           @map("short_description") // Corresponds to 'description' in your TS type
+  longDescription   String?           @map("long_description")
+  inscriptionInfo   String?           @map("inscription_info")
+  contactWhatsapp   String?           @map("contact_whatsapp")
+  contactEmail      String?           @map("contact_email")
+  contactPhone      String?           @map("contact_phone")
+  contactWebsite    String?           @map("contact_website")
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+
+  schedules SchoolSchedule[]
+  images    SchoolImage[]
+
+  @@map("Schools") // Name of the table in your database
+}
+
+model SchoolSchedule {
+  id           String @id @default(uuid())
+  schoolId     String @map("school_id")
+  scheduleItem String @map("schedule_item") // e.g., "Lunes 4-6 PM"
+
+  school School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@map("SchoolSchedules")
+}
+
+model SchoolImage {
+  id       String  @id @default(uuid())
+  schoolId String  @map("school_id")
+  imageUrl String  @map("image_url") // URL to the image
+  altText  String? @map("alt_text")
+
+  school School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@map("SchoolImages")
+}
+
+enum Modality {
+  Presencial
+  Virtual
+  Hibrido // Note: Prisma enum values must be valid identifiers (cannot contain accents or hyphens like 'Híbrido')
+          // You might need to map these to user-friendly strings in your application logic if needed.
+}
