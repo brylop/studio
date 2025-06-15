@@ -4,10 +4,6 @@
 /node_modules
 /.pnp
 .pnp.js
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
 
 # Testing
 /coverage
@@ -22,18 +18,10 @@
 # Misc
 .DS_Store
 *.pem
-*.log
-logs
-*.swo
-*.swp
-*.zip
-*.tar.gz
 
 # Local Environment Variables
-.env.local
-.env.*.local
-!/.env.example
-!/.env.sample
+.env*.local
+.env
 
 # Log files
 npm-debug.log*
@@ -55,16 +43,22 @@ pnpm-debug.log*
 *.sw?
 
 # Firebase
-.firebase
+.firebase/
 firebase-debug.log
 database-debug.log
 
-# Genkit
-.genkit/cache
-.genkit/state
+# TypeScript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
 
-# IDX specific (if applicable)
-.idx/*
-!.idx/workspace.json
-!.idx/dev.nix
-!.idx/workspaceSettings.json
+# Output of 'firebase init hosting'
+firebase.json
+.firebaserc
+
+# Output of 'firebase init functions'
+lib/
+# Generated file from 'genkit init' or 'genkit start'
+genkit.state
+
+# IDX specific
+.idx/
