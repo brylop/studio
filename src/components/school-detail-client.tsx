@@ -2,39 +2,61 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
-import { School } from '@/types';
+import type { School } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { MapPlaceholder } from '@/components/map-placeholder';
 import { 
-  MapPin, DollarSign, Users, CalendarDays, Zap, Phone, Mail, MessageSquare, Star, Globe, Building, Info, ExternalLink
+  MapPin, DollarSign, Users, CalendarDays, Zap, Phone, Mail, MessageSquare, Star, Globe, Building, Info, ExternalLink, Heart
 } from 'lucide-react';
 import React from 'react';
+import { useFavorites } from '@/contexts/FavoritesContext';
+import { cn } from '@/lib/utils';
 
 interface SchoolDetailClientProps {
   school: School;
 }
 
 export function SchoolDetailClient({ school }: SchoolDetailClientProps) {
+  const { addFavorite, removeFavorite, isFavorite } = useFavorites();
+  const isCurrentlyFavorite = isFavorite(school.id);
+
   const mainImage = school.image;
-  const galleryImages = school.images?.length ? school.images : [school.image]; // Fallback to main image if no gallery
+  const galleryImages = school.images?.length ? school.images : [school.image]; 
 
   const [activeImage, setActiveImage] = React.useState(mainImage);
 
+  const handleFavoriteToggle = () => {
+    if (isCurrentlyFavorite) {
+      removeFavorite(school.id);
+    } else {
+      addFavorite(school);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      {/* Columna Izquierda: Información Principal y Contacto */}
       <div className="lg:col-span-2 space-y-6">
         <Card className="shadow-lg">
           <CardHeader>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
               <CardTitle className="font-headline text-3xl text-primary mb-2 sm:mb-0">{school.name}</CardTitle>
-              <Badge variant={school.modality === 'Virtual' ? 'secondary' : school.modality === 'Híbrido' ? 'outline' : 'default'} className="capitalize text-sm px-3 py-1">
-                <Zap className="w-4 h-4 mr-2" />{school.modality}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="text-primary rounded-full p-1.5 hover:bg-primary/10"
+                  onClick={handleFavoriteToggle}
+                  aria-label={isCurrentlyFavorite ? "Quitar de favoritos" : "Añadir a favoritos"}
+                >
+                  <Heart className={cn("w-7 h-7", isCurrentlyFavorite ? "fill-primary text-primary" : "text-primary/70")} />
+                </Button>
+                <Badge variant={school.modality === 'Virtual' ? 'secondary' : school.modality === 'Híbrido' ? 'outline' : 'default'} className="capitalize text-sm px-3 py-1">
+                  <Zap className="w-4 h-4 mr-2" />{school.modality}
+                </Badge>
+              </div>
             </div>
             <CardDescription className="text-lg flex items-center gap-2">
               <Building className="w-5 h-5 text-accent" /> {school.sport}
@@ -52,16 +74,15 @@ export function SchoolDetailClient({ school }: SchoolDetailClientProps) {
             )}
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Galería de Imágenes */}
             <div className="mb-6">
               <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-md">
                 <Image 
                   src={activeImage} 
                   alt={`Instalaciones de ${school.name}`} 
-                  layout="fill" 
-                  objectFit="cover"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 66vw"
+                  className="object-cover transition-opacity duration-300 ease-in-out"
                   data-ai-hint={`${school.sport} facility`}
-                  className="transition-opacity duration-300 ease-in-out"
                 />
               </div>
               {galleryImages.length > 1 && (
@@ -72,7 +93,7 @@ export function SchoolDetailClient({ school }: SchoolDetailClientProps) {
                       onClick={() => setActiveImage(imgUrl)}
                       className={`relative w-20 h-16 rounded-md overflow-hidden border-2 transition-all ${activeImage === imgUrl ? 'border-primary scale-105' : 'border-transparent hover:border-muted'}`}
                     >
-                      <Image src={imgUrl} alt={`Vista ${idx + 1} de ${school.name}`} layout="fill" objectFit="cover" data-ai-hint={`${school.sport} detail`} />
+                      <Image src={imgUrl} alt={`Vista ${idx + 1} de ${school.name}`} fill className="object-cover" data-ai-hint={`${school.sport} detail`} sizes="80px" />
                     </button>
                   ))}
                 </div>
@@ -136,7 +157,6 @@ export function SchoolDetailClient({ school }: SchoolDetailClientProps) {
         </Card>
       </div>
 
-      {/* Columna Derecha: Contacto y Mapa */}
       <div className="lg:col-span-1 space-y-6">
         <Card className="shadow-lg sticky top-8">
           <CardHeader>
