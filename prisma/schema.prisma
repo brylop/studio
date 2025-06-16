@@ -1,69 +1,73 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
 generator client {
   provider = "prisma-client-js"
 }
 
+datasource db {
+  provider = "postgresql" // Especifica que usarás PostgreSQL
+  url      = env("DATABASE_URL") // Lee la URL de la base de datos desde una variable de entorno
+}
+
+// Modelo para las Escuelas Deportivas
 model School {
-  id                String            @id @default(uuid())
+  id                String    @id @default(uuid()) // O usa @default(cuid()) si prefieres
   name              String
   sport             String
-  priceDescription  String?           @map("price_description")
-  agesDescription   String?           @map("ages_description")
-  modality          Modality
+  priceDescription  String?   @map("price_description") // Mapea a price_description en la BD
+  agesDescription   String?   @map("ages_description")
+  modality          ModalityType // Usando el tipo Enum ModalityType
   address           String?
   neighborhood      String?
   city              String
   latitude          Float?
   longitude         Float?
-  mainImageUrl      String?           @map("main_image_url") // Corresponds to 'image' in your TS type
+  mainImageUrl      String?   @map("main_image_url")
   rating            Float?
-  shortDescription  String?           @map("short_description") // Corresponds to 'description' in your TS type
-  longDescription   String?           @map("long_description")
-  inscriptionInfo   String?           @map("inscription_info")
-  contactWhatsapp   String?           @map("contact_whatsapp")
-  contactEmail      String?           @map("contact_email")
-  contactPhone      String?           @map("contact_phone")
-  contactWebsite    String?           @map("contact_website")
-  createdAt         DateTime          @default(now()) @map("created_at")
-  updatedAt         DateTime          @updatedAt @map("updated_at")
+  shortDescription  String?   @map("short_description")
+  longDescription   String?   @map("long_description")
+  inscriptionInfo   String?   @map("inscription_info")
+  contactWhatsapp   String?   @map("contact_whatsapp")
+  contactEmail      String?   @map("contact_email")
+  contactPhone      String?   @map("contact_phone")
+  contactWebsite    String?   @map("contact_website")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
+  // Relaciones
   schedules SchoolSchedule[]
   images    SchoolImage[]
 
-  @@map("Schools") // Name of the table in your database
+  @@map("schools") // Nombre de la tabla en la base de datos (opcional si es 'School')
 }
 
+// Modelo para los Horarios de las Escuelas
 model SchoolSchedule {
   id           String @id @default(uuid())
   schoolId     String @map("school_id")
-  scheduleItem String @map("schedule_item") // e.g., "Lunes 4-6 PM"
+  scheduleItem String @map("schedule_item") // Ej: "Lunes 4-6 PM"
 
   school School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
 
-  @@map("SchoolSchedules")
+  @@map("school_schedules")
 }
 
+// Modelo para las Imágenes de la Galería de las Escuelas
 model SchoolImage {
-  id       String  @id @default(uuid())
-  schoolId String  @map("school_id")
-  imageUrl String  @map("image_url") // URL to the image
+  id       String @id @default(uuid())
+  schoolId String @map("school_id")
+  imageUrl String @map("image_url")
   altText  String? @map("alt_text")
 
   school School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
 
-  @@map("SchoolImages")
+  @@map("school_images")
 }
 
-enum Modality {
+// Enum para la Modalidad
+enum ModalityType {
   Presencial
   Virtual
-  Hibrido // Note: Prisma enum values must be valid identifiers (cannot contain accents or hyphens like 'Híbrido')
-          // You might need to map these to user-friendly strings in your application logic if needed.
+  Hibrido // Nota: Prisma usa PascalCase para los valores de Enum. Asegúrate que esto coincida con tus datos o ajusta.
 }
