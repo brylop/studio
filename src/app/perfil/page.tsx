@@ -5,28 +5,44 @@ import { AppHeader } from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Edit3, LogOut, Heart, Settings, ShieldCheck } from 'lucide-react';
-import React from 'react';
+import { SchoolList } from '@/components/school-list';
+import { Edit3, LogOut, Heart, Settings, ShieldCheck, Frown } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useFavorites } from '@/contexts/FavoritesContext';
+import type { School } from '@/types'; // Import School type
 
-// Simulación de datos de usuario
+// Simulación de datos de usuario (se podría obtener de un contexto de autenticación en el futuro)
 const userData = {
   name: "Usuario Ejemplo",
   email: "usuario@ejemplo.com",
   avatarUrl: "https://placehold.co/100x100.png",
   joinDate: "Enero 2024",
-  favoriteSchoolsCount: 3,
 };
 
 export default function PerfilPage() {
+  const { favoriteSchools } = useFavorites();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true); // Para asegurar que el código del lado del cliente se ejecute después del montaje
+  }, []);
+
   const handleLogout = () => {
     alert("Funcionalidad de cerrar sesión en desarrollo.");
+    // Aquí iría la lógica para cerrar sesión (ej. con NextAuth.js)
   };
+
+  if (!mounted) {
+    // Puedes mostrar un loader o null mientras se espera que el cliente se monte
+    // para evitar hydration mismatch con localStorage
+    return null; 
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <AppHeader />
       <main className="flex-grow container mx-auto px-4 py-12">
-        <Card className="w-full max-w-3xl mx-auto shadow-xl">
+        <Card className="w-full max-w-4xl mx-auto shadow-xl">
           <CardHeader className="text-center sm:text-left sm:flex sm:flex-row sm:items-center sm:gap-6">
             <Avatar className="h-24 w-24 mx-auto sm:mx-0 ring-4 ring-primary ring-offset-2">
               <AvatarImage src={userData.avatarUrl} alt={userData.name} data-ai-hint="person portrait" />
@@ -40,15 +56,18 @@ export default function PerfilPage() {
           </CardHeader>
           <CardContent className="space-y-8 mt-6">
             <section>
-              <h3 className="font-headline text-xl font-semibold mb-3 flex items-center gap-2">
-                <Heart className="text-primary h-5 w-5" /> Mis Escuelas Favoritas
+              <h3 className="font-headline text-xl font-semibold mb-4 flex items-center gap-2">
+                <Heart className="text-primary h-6 w-6" /> Mis Escuelas Favoritas ({favoriteSchools.length})
               </h3>
-              {userData.favoriteSchoolsCount > 0 ? (
-                <p>Tienes {userData.favoriteSchoolsCount} escuelas guardadas como favoritas. <Button variant="link" size="sm">Ver favoritas</Button></p>
+              {favoriteSchools.length > 0 ? (
+                <SchoolList schools={favoriteSchools as School[]} /> 
               ) : (
-                <p className="text-muted-foreground">Aún no has guardado ninguna escuela como favorita.</p>
+                <div className="text-center py-6 border rounded-lg bg-muted/50">
+                    <Frown className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+                    <p className="text-muted-foreground">Aún no has guardado ninguna escuela como favorita.</p>
+                    <p className="text-sm text-muted-foreground mt-1">Explora las escuelas y usa el ícono de corazón <Heart className="inline h-4 w-4 text-primary/70" /> para guardarlas.</p>
+                </div>
               )}
-              {/* Aquí iría la lista de escuelas favoritas */}
             </section>
 
             <section className="space-y-3">
@@ -61,7 +80,6 @@ export default function PerfilPage() {
               <Button variant="outline" className="w-full sm:w-auto justify-start">
                 <ShieldCheck className="mr-2 h-4 w-4" /> Cambiar Contraseña
               </Button>
-              {/* Más opciones de configuración */}
             </section>
 
             <div className="pt-6 border-t">

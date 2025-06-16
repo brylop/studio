@@ -1,31 +1,60 @@
 
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { MapPin, DollarSign, Users, CalendarDays, Zap, Phone, Mail, MessageSquare, Star, Globe, Eye } from 'lucide-react';
+import { MapPin, DollarSign, Users, Zap, Phone, Mail, MessageSquare, Star, Globe, Eye, Heart } from 'lucide-react';
 import type { School } from '@/types';
+import { useFavorites } from '@/contexts/FavoritesContext';
+import { cn } from '@/lib/utils';
 
 interface SchoolCardProps {
   school: School;
 }
 
 export function SchoolCard({ school }: SchoolCardProps) {
+  const { addFavorite, removeFavorite, isFavorite } = useFavorites();
+  const isCurrentlyFavorite = isFavorite(school.id);
+
+  const handleFavoriteToggle = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent link navigation when clicking favorite
+    e.stopPropagation();
+    if (isCurrentlyFavorite) {
+      removeFavorite(school.id);
+    } else {
+      addFavorite(school);
+    }
+  };
+
   return (
-    <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col h-full">
-      <Link href={`/escuelas/${school.id}`} className="block hover:opacity-90 transition-opacity">
-        <div className="relative w-full h-48">
-          <Image 
-            src={school.image} 
-            alt={`Instalaciones de ${school.name}`} 
-            layout="fill" 
-            objectFit="cover"
-            data-ai-hint={`${school.sport} training`} 
-          />
-        </div>
-      </Link>
+    <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col h-full group">
+      <div className="relative">
+        <Link href={`/escuelas/${school.id}`} className="block hover:opacity-90 transition-opacity">
+          <div className="relative w-full h-48">
+            <Image 
+              src={school.image} 
+              alt={`Instalaciones de ${school.name}`} 
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover"
+              data-ai-hint={`${school.sport} training`} 
+            />
+          </div>
+        </Link>
+        <Button 
+            variant="ghost" 
+            size="icon" 
+            className="absolute top-2 right-2 bg-background/70 hover:bg-background/90 text-primary rounded-full p-1.5"
+            onClick={handleFavoriteToggle}
+            aria-label={isCurrentlyFavorite ? "Quitar de favoritos" : "Añadir a favoritos"}
+        >
+            <Heart className={cn("w-5 h-5", isCurrentlyFavorite ? "fill-primary text-primary" : "text-primary/70")} />
+        </Button>
+      </div>
       <CardHeader>
         <Link href={`/escuelas/${school.id}`} className="hover:underline">
           <CardTitle className="font-headline text-xl text-primary">{school.name}</CardTitle>
